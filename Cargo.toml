@@ -1,0 +1,9 @@
+[package]
+name = "imprint"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ml-dsa = "0.0.4"
+rand = "0.9.2"
+rand_core = "0.9.5"
