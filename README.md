@@ -48,4 +48,12 @@ Assume everything is a barebones implementation with security holes. This is onl
 - Poseidon should be used in everything that is to be computed within ZK, and SHA-256 elsewhere
 - This solution is not entirely private, verifications are linkable through merkle roots. A potential solution is ring signatures
 
+## Spec Details
+
+### Attribute Merkle Tree
+
+- This prototype uses a 2-deep merkle tree that contains four attributes: name, dob, nationality, gender.
+- These attributes were chosen in order to have the ability to make four kinds of proofs: Equality proofs with strings(name) and an enum(gender), Range proofs(age), Set membership(nationality)
+- Each attribute must be mappable onto the BN-254 field in order for ZK to work
+- Merkle tree construction code is in utils/merkle.rs
 
