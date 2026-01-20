@@ -9,18 +9,19 @@ the bn254 curve.
 
 What this means in essence is that we build a hash function based on these poseidon permutations that can take in 
 a vector of field elements and return an output of a preset size, which is a hash of our input. This hash function
-is used for every value that has to be used inside of a ZK circuit, because the usual hash functions like SHA-265 
+is used for every value that has to be used inside of a ZK circuit, because the usual hash functions like SHA-256 
 have a very high constraint cost compared to poseidon.
 
 
 # Why Poseidon and not SHA-256?
 
-ZK proving systems are based on polynomial math. Any computer algorithm that needs to be computed within a ZK circuit
+ZK proving systems are based on polynomial math. Any algorithm that needs to be computed within a ZK circuit
 needs to be represented as a series of polynomial operations, also known as an arithmetic circuit. This conversion 
 process is known as arithmetization. The problem with SHA-256 and other similar hash functions is that they're designed
 to run well on a CPU, and thus use bit operations(xor, bit flips, bit shifts, etc.) as the source of non-linearity. 
-These operations are obviously a lot harder to represent algebraically than operations like multiplication, exponentiation, etc.
-This is the reason why we need hashing algorithms based on algebraic operations like poseidon or keccak.
+These operations are much more expensive to represent algebraically than regular operations like multiplication or 
+exponentiation. Poseidon, however, is designed to work directly over finite fields with algebraic operations that are
+computationally cheap in ZK circuits.
 
 
 # Poseidon function parameters.
@@ -47,13 +48,13 @@ The poseidon function works on an internal state vector with **t** elements, whe
 member of the scalar field of an elliptic curve (Here, BN254)
 
 ```
-state = [x1, x2, ......x(t-1)]
+state = [x0, x1, ......x(t-1)]
 ```
 
 The hash function takes in a vector containing **r** elements, where r is our number of inputs, and adds **c** unrelated 
 elements to form a total of **t**. Here, r is our rate(number of inputs) and c is our capacity(state elements reserved
-for security). Together, your rate and capacity decide the size of the state for each permutation. A larger state means
-heavier ZK computiation and more constraints. The pre-existing poseidon variants are optimised to have good security with
+for security, separate from input). Together, your rate and capacity decide the size of the state for each permutation. A larger state means
+heavier ZK computation and more constraints. The pre-existing poseidon variants are optimised to have good security with
 the smallest necessary state and number of rounds. 
 
 For a binary merkle tree like the one used in our attribute tree, where each node is the hash of its two children, we 
@@ -64,7 +65,7 @@ give two inputs: the left child and the right child.
 Each round of permutation starts by adding a pre-defined constant to each element of the state vector.
 
 ```
-state = [x1, x2, x3, x4]
+state = [x0, x1, x2, x3]
 
 for i in range(0, t-1):
     state[i] = state[i] + round_constants[round][i]
@@ -75,18 +76,18 @@ This breaks symmetry between rounds. The variable name for this set of constants
 ### 3. Permutation: Substitution box (S-box)
 
 A substitution box is a way to apply a non linear transformation to your state. In poseidon, this is done through 
-exponentiation by a factor of `alpha`. Alpha is an odd number, [usually 3 or 5](https://autoparallel.github.io/poseidon/s-boxes.html#why-choose-x3-and-x), mostly 5. The higher the alpha the better the security,but obviously this comes at a performance cost.
+exponentiation by a factor of `alpha`. Alpha is an odd number, [usually 3 or 5](https://autoparallel.github.io/poseidon/s-boxes.html#why-choose-x3-and-x), 5 in circomlib. The higher the alpha the better the security,but obviously this comes at a performance cost.
 
 ```
-state = [x1, x2, x3, x4]
+state = [x0, x1, x2, x3]
 
 for i in range(0, t-1):
-    state[i] = state[i] ^ alpha
+    state[i] = state[i] ** alpha
 ```
 
-The above Pseudocode describles a full round, where every state element is transformed. There are also a number of
+The above Pseudocode describes a full round, where every state element is transformed. There are also a number of
 partial rounds, where only one element in the state is transformed. This massively saves on performance, and is
-allowable security wise because the next step propogates this transformation to the whole set.
+allowable security wise because the next step propagates this transformation to the whole set.
 
 The number of full rounds is `full_rounds`, and the number of partial rounds is `partial_rounds`
 
@@ -100,11 +101,11 @@ These matrices are pre-defined t x t matrices composed of field elements. The va
 is `mds`.
 
 ```
-state = [x1,x2,x3,x4]
-new_state = [0,0,0,0]
+state = [x0, x1, x2, x3]
+new_state = [0, 0, 0, 0]
 
-for i in range(0,t-1):
-    for j in range(0,t-1):
+for i in range(0, t-1):
+    for j in range(0, t-1):
         new_state[i] += MDS[i][j] * state[j]
 
 state = new_state
@@ -112,8 +113,8 @@ state = new_state
 
 ### 5. Output
 
-The permutation rounds are redone as many times as defined by `full_rounds` and `partial_rounds`. Finally, you
-get a field element of a fixed size that's a hash of your inputs.
+The permutation rounds are redone as many times as defined by `full_rounds` and `partial_rounds`. Finally, the first state element
+is taken as the hash output.
 
 # Practical considerations
 
