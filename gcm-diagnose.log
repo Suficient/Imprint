@@ -1,0 +1,202 @@
+﻿Diagnose log at 2026-01-19T19:44:23Z
+
+AppPath: C:\Program Files\Git\mingw64\bin\git-credential-manager.exe
+InstallDir: C:\Program Files\Git\mingw64\bin\
+Version: 2.6.1+786ab03440ddc82e807a97c0e540f5247e44cec6
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Windows
+OSVersion: 10.0 (build 26100)
+Reading environment variables... OK
+ Variables:
+HOMEPATH=\Users\abhin
+DriverData=C:\Windows\System32\Drivers\DriverData
+COMPUTERNAME=ABHINEETH
+GIT_TRACE2_PARENT_SID=7c7a3753-3c12-4aa5-94ee-679adb87ca89
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+OneDrive=C:\Users\abhin\OneDrive
+ChocolateyLastPathUpdate=133466700779064433
+PYTHON_BASIC_REPL=1
+BUNDLED_DEBUGPY_PATH=c:\Users\abhin\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\libs\debugpy
+LANG=en_US.UTF-8
+TMP=C:\Users\abhin\AppData\Local\Temp
+HOME=C:\Users\abhin
+PROCESSOR_REVISION=5000
+PYDEVD_DISABLE_FILE_VALIDATION=1
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
+GIT_ASKPASS=c:\Users\abhin\AppData\Local\Programs\Microsoft VS Code\resources\app\extensions\git\dist\askpass.sh
+GIT_EXEC_PATH=C:/Program Files/Git/mingw64/libexec/git-core
+TEMP=C:\Users\abhin\AppData\Local\Temp
+LOCALAPPDATA=C:\Users\abhin\AppData\Local
+MSYSTEM=MINGW64
+TERM=xterm-256color
+GOPATH=C:\Users\abhin\go
+ProgramW6432=C:\Program Files
+PYTHONSTARTUP=c:\Users\abhin\AppData\Roaming\Code\User\workspaceStorage\c17272f11dcada7c93cac5055a970c13\ms-python.python\pythonrc.py
+USERDOMAIN=ABHINEETH
+ProgramFiles(x86)=C:\Program Files (x86)
+VSCODE_NONCE=94ecf5df-1ac8-49dd-aac3-4346e696290b
+Path=C:/Program Files/Git/mingw64/libexec/git-core;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\abhin\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Python310\Scripts\;C:\Program Files\Python310\;C:\Users\abhin\AppData\Local\Programs\Python\Python310\Scripts;C:\Users\abhin\AppData\Local\Programs\Python\Python310\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\ZeroTier\One\;C:\Users\abhin\Downloads\lwjgl-release-3.3.4-custom;C:\Program Files\apache-maven-3.9.9-bin\apache-maven-3.9.9\bin;C:\Program Files\Git\cmd;C:\dev;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files\Go\bin;C:\Program Files\Cloudflare\Cloudflare WARP\;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Users\abhin\.cargo\bin;C:\Users\abhin\AppData\Local\Microsoft\WindowsApps;C:\Users\abhin\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\abhin\AppData\Roaming\npm;C:\Users\abhin\AppData\Local\GitHubDesktop\bin;C:\Python312\Lib\site-packages\PySide6\bin;C:\Users\abhin\AppData\Roaming\Python\Python311\Scripts;C:\Users\abhin\AppData\Local\Muse Hub\lib;C:\Users\abhin\.dotnet\tools;;C:\Users\abhin\.lmstudio\bin;C:\Users\abhin\AppData\Local\Programs\Ollama;C:\Users\abhin\.dotnet\tools;C:\Users\abhin\AppData\Local\Microsoft\WinGet\Links;C:\Users\abhin\go\bin;c:\Users\abhin\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\bundled\scripts\noConfigScripts
+TERM_PROGRAM=vscode
+PROCESSOR_LEVEL=25
+PROCESSOR_IDENTIFIER=AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD
+TMPDIR=C:\Users\abhin\AppData\Local\Temp
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+PROMPT=$P$G
+TERM_PROGRAM_VERSION=1.108.1
+VSCODE_GIT_ASKPASS_MAIN=c:\Users\abhin\AppData\Local\Programs\Microsoft VS Code\resources\app\extensions\git\dist\askpass-main.js
+PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+PUBLIC=C:\Users\Public
+NUMBER_OF_PROCESSORS=12
+EFC_9220_1592913036=1
+CommonProgramFiles=C:\Program Files (x86)\Common Files
+VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=c:\Users\abhin\.vscode\extensions\ms-python.debugpy-2025.18.0-win32-x64\.noConfigDebugAdapterEndpoints\endpoint-b936cce92cfb7d23.txt
+VSCODE_GIT_IPC_HANDLE=\\.\pipe\vscode-git-2712a28409-sock
+CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_27076_INOBAYFGIRFNCDPQ
+PLINK_PROTOCOL=ssh
+ProgramData=C:\ProgramData
+ProgramFiles=C:\Program Files (x86)
+ChocolateyInstall=C:\ProgramData\chocolatey
+VSCODE_GIT_ASKPASS_NODE=C:\Users\abhin\AppData\Local\Programs\Microsoft VS Code\Code.exe
+SystemRoot=C:\WINDOWS
+SESSIONNAME=Console
+CommonProgramW6432=C:\Program Files\Common Files
+LOGONSERVER=\\ABHINEETH
+USERPROFILE=C:\Users\abhin
+COLORTERM=truecolor
+USERDOMAIN_ROAMINGPROFILE=ABHINEETH
+APPDATA=C:\Users\abhin\AppData\Roaming
+HOMEDRIVE=C:
+VBOX_HWVIRTEX_IGNORE_SVM_IN_USE=1
+USERNAME=abhin
+PROCESSOR_ARCHITEW6432=AMD64
+PROCESSOR_ARCHITECTURE=x86
+OS=Windows_NT
+ComSpec=C:\WINDOWS\system32\cmd.exe
+SystemDrive=C:
+windir=C:\WINDOWS
+OneDriveConsumer=C:\Users\abhin\OneDrive
+ALLUSERSPROFILE=C:\ProgramData
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is 'C:\Users\abhin\AppData\Local\Temp\'...
+Checking basic file I/O...
+Writing to temporary file 'C:\Users\abhin\AppData\Local\Temp\a21f4ab58bb15cf2df83bb16'... OK
+Reading from temporary file 'C:\Users\abhin\AppData\Local\Temp\a21f4ab58bb15cf2df83bb16'... OK
+Deleting temporary file 'C:\Users\abhin\AppData\Local\Temp\a21f4ab58bb15cf2df83bb16'... OK
+Testing IFileSystem instance...
+UserHomePath: C:\Users\abhin
+UserDataDirectoryPath: C:\Users\abhin\.gcm
+GetCurrentDirectory(): C:\Users\abhin\OneDrive\Desktop\CodeProjects\IMPRINT
+
+------------
+Diagnostic: Networking
+Skipped: False
+Success: True
+Exception: None
+Log:
+Checking networking and HTTP stack...
+Creating HTTP client... OK
+IsNetworkAvailable: True
+Sending HEAD request to http://example.com...Sending HEAD request to https://example.com... OK
+ OK
+Acquiring free TCP port... OK
+Testing local HTTP loopback connections...
+Creating new HTTP listener for http://localhost:52915/... OK
+Waiting for loopback connection... OK
+Writing response... OK
+Waiting for response data... OK
+Loopback connection data OK
+
+------------
+Diagnostic: Git
+Skipped: False
+Success: True
+Exception: None
+Log:
+Getting Git version... OK
+Git version is '2.48.1.windows.1'
+Locating current repository...Git repository at 'C:/Users/abhin/OneDrive/Desktop/CodeProjects/IMPRINT/.git'
+ OK
+Listing all Git configuration... OK
+Git configuration:
+file:C:/Program Files/Git/etc/gitconfig	diff.astextplain.textconv=astextplain
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.required=true
+file:C:/Program Files/Git/etc/gitconfig	http.sslbackend=openssl
+file:C:/Program Files/Git/etc/gitconfig	http.sslcainfo=C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt
+file:C:/Program Files/Git/etc/gitconfig	core.autocrlf=true
+file:C:/Program Files/Git/etc/gitconfig	core.fscache=true
+file:C:/Program Files/Git/etc/gitconfig	core.symlinks=false
+file:C:/Program Files/Git/etc/gitconfig	core.editor="C:\\Program Files\\Sublime Text\\subl.exe" -w
+file:C:/Program Files/Git/etc/gitconfig	pull.rebase=false
+file:C:/Program Files/Git/etc/gitconfig	credential.helper=manager
+file:C:/Program Files/Git/etc/gitconfig	credential.https://dev.azure.com.usehttppath=true
+file:C:/Program Files/Git/etc/gitconfig	init.defaultbranch=master
+file:C:/Users/abhin/.gitconfig	filter.lfs.required=true
+file:C:/Users/abhin/.gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Users/abhin/.gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Users/abhin/.gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Users/abhin/.gitconfig	user.name=suficient
+file:C:/Users/abhin/.gitconfig	user.email=abhineetthaire@gmail.com
+file:C:/Users/abhin/.gitconfig	user.password=iM0xQYx3Se0nC835rBemfq
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.symlinks=false
+file:.git/config	core.ignorecase=true
+file:.git/config	branch.main.gk-last-accessed=2026-01-19T19:41:24.666Z
+file:.git/config	branch.main.gk-last-modified=2026-01-19T19:41:24.666Z
+file:.git/config	remote.origin.url=https://github.com/Suficient/Imprint
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+
+
+------------
+Diagnostic: Credential storage
+Skipped: False
+Success: True
+Exception: None
+Log:
+ICredentialStore instance is of type: CredentialStore
+Writing test credential... OK
+Reading test credential... OK
+Deleting test credential... OK
+
+------------
+Diagnostic: Microsoft authentication (AAD/MSA)
+Skipped: False
+Success: True
+Exception: None
+Log:
+Broker is not enabled.
+Flow type is: Auto
+Gathering MSAL token cache data... OK
+CacheDirectory: C:\Users\abhin\AppData\Local\.IdentityService
+CacheFileName: msal.cache
+CacheFilePath: C:\Users\abhin\AppData\Local\.IdentityService\msal.cache
+Creating cache helper... OK
+Verifying MSAL token cache persistence... OK
+
+------------
+Diagnostic: GitHub API
+Skipped: False
+Success: True
+Exception: None
+Log:
+Using 'https://github.com/' as API target.
+Querying '/meta' endpoint... OK
+

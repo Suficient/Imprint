@@ -1,16 +1,19 @@
 
 use serde::{Deserialize, Serialize};
-use ml_dsa::{Signature};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Attribute {
     pub name: String,
-    pub value: String,
+    pub value: AttributeValue,
     pub salt: [u8; 32],        // each attribute has a randomised salt value
     pub leaf_index: usize,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AttributeValue {
+    String(String),
+    Number(i64),
+    Boolean(bool)
+}
+
 pub struct Credential {
     pub credential_id: String,
     pub issued_at: u64,
@@ -23,7 +26,6 @@ pub struct Credential {
     pub signature: DilithiumSignature,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DilithiumSignature {
     pub public_key: Vec<u8>,    // ~1952 bytes for Dilithium3
     pub signature: Vec<u8>,      // ~3293 bytes for Dilithium3

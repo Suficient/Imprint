@@ -57,3 +57,6 @@ Assume everything is a barebones implementation with security holes. This is onl
 - Each attribute must be mappable onto the BN-254 field in order for ZK to work
 - Merkle tree construction code is in utils/merkle.rs
 
+
+### TODO
+- Generalise the conversion functions used to convert circomlib constants to arkworks readable format.
