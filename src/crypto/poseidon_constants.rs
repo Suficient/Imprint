@@ -1,33 +1,53 @@
 use std::{str::FromStr};
 use crate::crypto::circomlib_poseidon_constants::*;
 use ark_bn254::Fr;
-use ark_ff::{AdditiveGroup};
+use ark_ff::{AdditiveGroup, PrimeField};
 use once_cell::sync::Lazy;
 
 // This file contains intermediate functions to convert the circomlib poseidon constants
 // to a format readable by the arkworks' poseidon function implementation.
 
-// The circomlib round constants are stored as a single dimensional matrix, but arkworks poseidon
-//  expects a two dimensional matrix arranged according to round number.
+pub fn fr(s: &str) -> Fr {
+    if let Some(hex_str) = s.strip_prefix("0x") {
 
-fn fr(hex: &'static str) -> Fr {
-    Fr::from_str(hex).expect("invalid field element")
+        let hex_str = if hex_str.len() % 2 != 0 {
+            format!("0{}", hex_str)
+        } else {
+            hex_str.to_string()
+        };
+
+        let mut bytes = hex::decode(&hex_str)
+            .unwrap_or_else(|e| panic!("Invalid hex string '{}': {:?}", s, e));
+
+        <Fr as PrimeField>::from_be_bytes_mod_order(&bytes)
+
+    } else {
+        Fr::from_str(s).unwrap_or_else(|e| {
+            panic!("Failed to parse decimal field element from '{}': {:?}", s, e)
+        })
+    }
 }
 
 pub static POSEIDON_ARK_T3: Lazy<Vec<Vec<Fr>>> = Lazy::new(|| {
-    derive_ark_vector(3)
+    transcode_ark_from_circomlib(3)
 });
 
-// function to derive ark vector in a format that is usable with arkworks poseidon.
+pub static POSEIDON_MDS_T3: Lazy<Vec<Vec<Fr>>> = Lazy::new(|| {
+    transpose(transcode_mds_from_circomlib(3))
+});
+
+// NUM_PARTIAL_ROUNDS[t-2] is the number of partial rounds for some t value as implemented in circom.
+pub const NUM_PARTIAL_ROUNDS: [u8; 16] = [
+    56, 57, 56, 60, 60, 63, 64, 63, 60, 66, 60, 65, 70, 60, 64, 68,
+];
+
+// function to transcode ark vector in a format that is usable with arkworks poseidon.
 // Bounds checks and tests must be added to ensure that the code doesn't silently panic.
-fn derive_ark_vector(t: usize) -> Vec<Vec<Fr>> {
+fn transcode_ark_from_circomlib(t: usize) -> Vec<Vec<Fr>> {
 
-    // NUM_PARTIAL_ROUNDS[t-2] is the number of partial rounds for some t value as implemented in circom.
-    const NUM_PARTIAL_ROUNDS: [u8; 16] = [
-        56, 57, 56, 60, 60, 63, 64, 63, 60, 66, 60, 65, 70, 60, 64, 68,
-    ];
 
-    #[derive(Clone)]
+
+    #[derive(Clone, Debug)]
     enum ARKWidth {
         Partial, // Partial rounds where RC is added only to the first element of the state vector
         Full,    // Full rounds where RC is added to every element of the state vector
@@ -47,9 +67,7 @@ fn derive_ark_vector(t: usize) -> Vec<Vec<Fr>> {
         rounds.extend(std::iter::repeat(ARKWidth::Partial).take(rp as usize));
         rounds.extend(std::iter::repeat(ARKWidth::Full).take(4));
 
-        let roundvector: Vec<ARKWidth> = rounds;
-
-        roundvector
+        rounds
     }
 
     fn generate_partial_round_vector(
@@ -89,17 +107,17 @@ fn derive_ark_vector(t: usize) -> Vec<Vec<Fr>> {
     let mut ark: Vec<Vec<Fr>> = Vec::with_capacity(rounds.len());
     let mut circomlib_constants_index: usize = 0;
 
-    for i in rounds.iter() {
+    for round in rounds {
         let temp: Vec<Fr>;
-        match i {
-            &ARKWidth::Full => {
+        match round {
+            ARKWidth::Full => {
                 temp = generate_full_round_vector(
                     &mut circomlib_constants_index,
                     &circomlib_constants,
                     t,
                 )
             }
-            &ARKWidth::Partial => {
+            ARKWidth::Partial => {
                 temp = generate_partial_round_vector(
                     &mut circomlib_constants_index,
                     &circomlib_constants,
@@ -111,4 +129,30 @@ fn derive_ark_vector(t: usize) -> Vec<Vec<Fr>> {
     }
 
     ark
+}
+
+fn transcode_mds_from_circomlib(t: usize) -> Vec<Vec<Fr>> {
+    get_circomlib_mds(t)
+        .iter()
+        .map(|row| {
+            row.iter()
+               .map(|&s| fr(s))
+               .collect()
+        })
+        .collect()
+}
+
+fn transpose(matrix: Vec<Vec<Fr>>) -> Vec<Vec<Fr>> {
+    let rows = matrix.len();
+    let cols = matrix[0].len();
+
+    let mut transposed = vec![vec![Fr::ZERO; rows]; cols];
+
+    for i in 0..rows {
+        for j in 0..cols {
+            transposed[j][i] = matrix[i][j];
+        }
+    }
+
+    transposed
 }

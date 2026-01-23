@@ -59,4 +59,4 @@ Assume everything is a barebones implementation with security holes. This is onl
 
 
 ### TODO
-- Generalise the conversion functions used to convert circomlib constants to arkworks readable format.
+- Write tests to make sure poseidon_constants.rs works correctly.
