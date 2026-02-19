@@ -57,6 +57,6 @@ Assume everything is a barebones implementation with security holes. This is onl
 - Each attribute must be mappable onto the BN-254 field in order for ZK to work
 - Merkle tree construction code is in utils/merkle.rs
 
+### Country Codes
 
-### TODO
-- Write tests to make sure poseidon_constants.rs works correctly.
+- For country attributes, we use ISO 3166 country codes with the rust_iso3166 library

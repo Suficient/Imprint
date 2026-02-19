@@ -1,19 +1,4 @@
 
-use serde::{Deserialize, Serialize};
-
-pub struct Attribute {
-    pub name: String,
-    pub value: AttributeValue,
-    pub salt: [u8; 32],        // each attribute has a randomised salt value
-    pub leaf_index: usize,
-}
-
-pub enum AttributeValue {
-    String(String),
-    Number(i64),
-    Boolean(bool)
-}
-
 pub struct Credential {
     pub credential_id: String,
     pub issued_at: u64,
@@ -21,7 +6,7 @@ pub struct Credential {
     
     // Merkle tree data
     pub merkle_root: [u8; 32],
-    pub attributes: Vec<Attribute>,
+    //pub attributes: AttributeSet,
     
     pub signature: DilithiumSignature,
 }
