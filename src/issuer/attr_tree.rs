@@ -3,7 +3,7 @@ use crate::issuer::attributes;
 /*
     ATTRIBUTE TREE
 
-    take 4 attributes, and turn them into a merkle tree
+    take AttributeSet, and turn them into a merkle tree
     
     Struct AttributeTree
         root,

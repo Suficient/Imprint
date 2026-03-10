@@ -1,4 +1,4 @@
-use crate::crypto::poseidon_ark_import::poseidon_hash;
+use crate::{crypto::poseidon_ark_import::poseidon_hash, issuer::{dob::DobType, error::HashError}};
 use ark_bn254::Fr;
 use ark_ff::PrimeField;
 use rust_iso3166;
@@ -10,7 +10,7 @@ pub trait Attribute {
 
     fn salt(&self) -> Fr;
 
-    fn hash(&self) -> Result<Fr, String>;
+    fn hash(&self) -> Result<Fr, HashError>;
 }
 
 pub struct NameAttribute {
@@ -25,9 +25,12 @@ impl NameAttribute {
 }
 
 impl Attribute for NameAttribute {
+    // TODO: replace with domain_tags.rs
     const DOMAIN_TAG: u64 = 1;
 
     // chunk the name string into 31 bytes and convert to fr.
+    // chunk size must never be increased past 31, as it would
+    // then be larger than the size of a bn254 field element.
     fn value_to_fr(&self) -> Vec<Fr> {
         const CHUNK_SIZE: usize = 31;
         let mut chunked: Vec<Fr> = vec![];
@@ -50,7 +53,7 @@ impl Attribute for NameAttribute {
         self.salt
     }
 
-    fn hash(&self) -> Result<Fr, String> {
+    fn hash(&self) -> Result<Fr, HashError> {
         let mut to_hash: Vec<Fr> = vec![Fr::from(Self::DOMAIN_TAG)];
         to_hash.extend(self.value_to_fr());
         to_hash.push(self.salt());
@@ -90,6 +93,7 @@ impl GenderAttribute {
 
 impl Attribute for GenderAttribute {
 
+    // TODO: replace with domain_tags.rs
     const DOMAIN_TAG: u64 = 2;
 
     fn salt(&self) -> Fr {
@@ -100,7 +104,7 @@ impl Attribute for GenderAttribute {
         vec![Fr::from(self.value.as_u64())]
     }
 
-    fn hash(&self) -> Result<Fr, String> {
+    fn hash(&self) -> Result<Fr, HashError> {
         let mut to_hash: Vec<Fr> = vec![Fr::from(Self::DOMAIN_TAG)];
         to_hash.extend(self.value_to_fr());
         to_hash.push(self.salt());
@@ -111,18 +115,19 @@ impl Attribute for GenderAttribute {
 
 
 pub struct DOBAttribute {
-    value: u64, //days since 1900-01-01
+    value: DobType, //days since 1900-01-01
     salt: Fr
 }
 
 impl DOBAttribute {
-    pub fn new(date: u64, salt: Fr) -> Self {
+    pub fn new(date: DobType, salt: Fr) -> Self {
         Self { value: date, salt }
     }
 }
 
 impl Attribute for DOBAttribute {
 
+    // TODO: replace with domain_tags.rs
     const DOMAIN_TAG: u64 = 3;
 
     fn salt(&self) -> Fr {
@@ -130,10 +135,10 @@ impl Attribute for DOBAttribute {
     }
 
     fn value_to_fr(&self) -> Vec<Fr> {
-        vec![Fr::from(self.value)]
+        vec![Fr::from(u64::from(self.value))]
     }
 
-    fn hash(&self) -> Result<Fr, String> {
+    fn hash(&self) -> Result<Fr, HashError> {
         let mut to_hash: Vec<Fr> = vec![Fr::from(Self::DOMAIN_TAG)];
         to_hash.extend(self.value_to_fr());
         to_hash.push(self.salt());
@@ -156,18 +161,21 @@ impl CountryAttribute {
 
 impl Attribute for CountryAttribute {
 
+    // TODO: replace with domain_tags.rs
     const DOMAIN_TAG: u64 = 4;
 
     fn salt(&self) -> Fr {
         self.salt
     }
 
+    // while the alppha3 value is used everywhere else in the code,
+    // the ZK circuits for country codes use the numeric value.
     fn value_to_fr(&self) -> Vec<Fr> {
         let countrycode_numeric = self.value.numeric;
         vec![Fr::from(countrycode_numeric as u64)]
     }
 
-    fn hash(&self) -> Result<Fr, String> {
+    fn hash(&self) -> Result<Fr, HashError> {
         let mut to_hash: Vec<Fr> = vec![Fr::from(Self::DOMAIN_TAG)];
         to_hash.extend(self.value_to_fr());
         to_hash.push(self.salt());

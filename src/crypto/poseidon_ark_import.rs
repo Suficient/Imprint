@@ -4,7 +4,7 @@ use ark_std::str::FromStr;
 use ark_std::Zero;
 use core::ops::{AddAssign, MulAssign};
 
-use crate::crypto::constants;
+use crate::{crypto::constants, issuer::error::HashError};
 
 #[derive(Debug)]
 pub struct Constants {
@@ -92,10 +92,10 @@ impl Poseidon {
         new_state.clone()
     }
 
-    pub fn hash(&self, inp: Vec<Fr>) -> Result<Fr, String> {
+    pub fn hash(&self, inp: Vec<Fr>) -> Result<Fr, HashError> {
         let t = inp.len() + 1;
         if inp.is_empty() || inp.len() > self.constants.n_rounds_p.len() {
-            return Err("Wrong inputs length".to_string());
+            return Err(HashError::InvalidInputLength);
         }
         let n_rounds_f = self.constants.n_rounds_f.clone();
         let n_rounds_p = self.constants.n_rounds_p[t - 2].clone();
@@ -114,7 +114,7 @@ impl Poseidon {
 }
 
 
-pub fn poseidon_hash(inputs: Vec<Fr>) -> Result<Fr, String> {
+pub fn poseidon_hash(inputs: Vec<Fr>) -> Result<Fr, HashError> {
     let poseidon = Poseidon::new();
     poseidon.hash(inputs)
 }
