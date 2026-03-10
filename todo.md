@@ -20,18 +20,18 @@ OVERALL TODO LIST
         [x] Name validation: enforce max 434 bytes (14 x 31-byte chunks)
         [x] DOB validation: must not be in the future, must not predate days==0
         [x] Gender and Country validation: must be valid values
-
-    [ ] Attribute set (issuer/attribute_set.rs)
-        [ ] Implement AttributeSet::new(name, gender, dob, country) -> Result<Self, IssuerError>
+;
+    [x] Attribute set (issuer/attribute_set.rs)
+        [x] Implement AttributeSet::new(name, gender, dob, country) -> Result<Self, IssuerError>
         [x] AttributeSet::salts() -> [Fr; 4] — needed later for witness generation
         [x] AttributeSet::leaf_hashes() — return hashed values of inner structs
-
-    [ ] Validation module (issuer/validation.rs — new file)
-        [ ] validate name
-        [ ] validate dob
-        [ ] validate gender
-        [ ] validate country
-
+;
+    [x] Validation module (issuer/validation.rs — new file)
+        [x] validate name
+        [x] validate dob
+        [x] validate gender
+        [x] validate country
+;
     [ ] Merkle tree (issuer/attr_tree.rs)
         [ ] Define AttrTree struct
         [ ] write constructor
@@ -45,7 +45,7 @@ OVERALL TODO LIST
         [ ] MerkleProof struct { leaf: Fr, sibling: Fr, is_left: bool, root: Fr }
         [ ] AttrTree::verify_proof(proof: &MerkleProof) -> bool
         [ ] Tests: known-vector test for root given fixed attributes and salts
-
+;
     [ ] Credential assembly (issuer/credential.rs — new file)
         [ ] Add a schema version field
         [ ] CredentialBuilder::new(set: AttributeSet) -> Self
@@ -57,7 +57,7 @@ OVERALL TODO LIST
             - assemble and return Credential
         [ ] Credential should embed AttributeSet (with salts) for holder use
             NOTE: salts are private and must not be shared with verifier
-
+;
     [ ] Dilithium signing (crypto/dilithium.rs — new file)
         [ ] Figure out which dilithium library and variant to use
         [ ] dilithium_keygen() -> (PublicKey, SecretKey)
@@ -65,21 +65,20 @@ OVERALL TODO LIST
         [ ] verify dilithium, with pubkey, root, signature
         [ ] connect to CredentialBuilder::issue()
             Note: public key (~1952 bytes) and signature (~3293 bytes) for Dilithium3
-
+;
     [ ] Storage (issuer/storage.rs — new file)
         [ ] Figure out what to actually do here
-
-    [ ] Error handling (issuer/error.rs — expand)
-        [ ] IssuerError enum covering:
-            - AttributeError(AttributeHashError)
-            - ValidationError(String)
-            - TreeError(String)
-            - SigningError(String)
-            - StorageError(std::io::Error)
-            - SerializationError(serde_json::Error)
-        [ ] impl From<AttributeHashError> for IssuerError
-        [ ] impl std::fmt::Display for IssuerError
-
+;
+    [ ] Error handling (issuer/error.rs)
+        [x] IssuerError enum covering:
+            [x]AttributeError(AttributeHashError)
+            [x]ValidationError(String)
+            [x]TreeError(String)
+            [ ]SigningError(String)
+            [ ]StorageError(std::io::Error)
+        [x] impl From<AttributeHashError> for IssuerError
+        [x] impl std::fmt::Display for IssuerError
+;
     [ ] CLI — issue command (cli/issue.rs — new file)
         [ ] imprint issue --name <str> --dob <YYYY-MM-DD> --gender <M|F|X> --country <alpha2>
         [ ] Parse and validate args, call CredentialBuilder, print credential_id on success
@@ -97,7 +96,7 @@ OVERALL TODO LIST
             - NameEquals(String)        — proves name == committed value
         [ ] ZkProof struct containing attribute proofs
         [ ] ProofPackage struct containing proof, root, signature, and issuer pubkey
-
+;
     [ ] Witness generation (holder/witness.rs — new file)
         [ ] figure out what to do here
 
@@ -106,7 +105,7 @@ OVERALL TODO LIST
         [ ] Shell out to snarkjs generateWitness + snarkjs prove
         [ ] Parse returned proof.json and public.json
         [ ] Locate circuit artifacts by circuit name (configurable base path)
-
+;
     [ ] Holder API (holder/api.rs — new file)
         [ ] generate_proof(cred_id: &str, request: ProofRequest) -> Result<ProofPackage, HolderError>
             - load credential from storage
@@ -115,17 +114,17 @@ OVERALL TODO LIST
             - call prover
             - bundle with root + dilithium sig + issuer pk
         [ ] HolderError enum (CredentialNotFound, WitnessError, ProofError, etc.)
-
+;
     [ ] Circuits (circuits/ — new directory)
         [ ] Figure out what to do here
         [ ] Known-vector tests for each circuit (test with hardcoded inputs, check output)
-
+;
     [ ] Performance testing (holder/bench.rs or benches/ — new)
         [ ] Measure: witness gen time, proof gen time, proof size per circuit
         [ ] Run on at least: age_range, country_set_membership
         [ ] Note: witness gen is typically the bottleneck, not proving
         [ ] Optional: compare snarkjs WASM vs rapidsnark native witness gen
-
+;
     [ ] CLI — prove command (cli/prove.rs — new file)
         [ ] imprint prove --cred <id> --age-over <n>
         [ ] imprint prove --cred <id> --country-in <alpha2,alpha2,...>
@@ -142,10 +141,10 @@ OVERALL TODO LIST
         [ ] shell out to snarkjs verifyProof, parse result
         [ ] verify_zk(circuit: &str, proof: &ZkProof) -> Result<bool, VerifierError>
         [ ] Confirm public signals match expected structure (root, threshold, etc.)
-
+;
     [ ] Dilithium signature verification (verifier/sig_verify.rs — new file)
         [ ] verify_dilithium(pk: &[u8], root_bytes: &[u8;32], sig: &DilithiumSignature) -> bool
-
+;
     [ ] Verifier API (verifier/api.rs — new file)
         [ ] VerificationRequest { proof_package: ProofPackage, expected_predicate: ProofRequest }
         [ ] VerificationResult { valid: bool, predicate_satisfied: bool, error: Option<String> }
@@ -154,11 +153,11 @@ OVERALL TODO LIST
             - verify Dilithium signature over root from public signals
             - confirm public signals satisfy the expected predicate
             - return unified result
-
+;
     [ ] CLI — verify command (cli/verify.rs — new file)
         [ ] imprint verify --proof <file> --issuer-pk <file>
         [ ] Print VALID / INVALID with reason
-
+;
     [ ] Performance testing
         [ ] Measure: ZK verify time, Dilithium verify time, total end-to-end
 
@@ -185,7 +184,7 @@ OVERALL TODO LIST
         Option A: Two QR codes (proof+root in one, sig+pk in another)
         Option B: Drop issuer pk from QR, verifier fetches it from a known registry by issuer ID
                   This is the right long-term design and cuts payload to ~3.5KB
-
+;
     [ ] Write QR design doc before implementing
     [ ] Implement QR encode (payload -> QR image) and decode (scan -> ProofPackage)
 
