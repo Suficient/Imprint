@@ -3,11 +3,11 @@
 Our design is based on a merkle tree of attributes, with a commitment signed on top of the root.
 Thus, for every attribute, the merkle inclusion + attribute condition is proved in ZK, and the signature is proved outside of ZK. 
 
-In this prototype, there are 4 attributes per credential
+In this prototype, there are 4 attributes per credential, in the following order.
 
 1. Name: String
-2. dob: u64 (timestamp since 1900 in days)
-3. gender: GenderAttribute (M, F, X)
+2. gender: GenderAttribute (M, F, X)
+3. dob: u64 (timestamp since 1900 in days)
 4. country: iso-3166 numeric
 
 Each of these needs to be hashed with poseidon. The hash functions for different uses must be separated with domain tagging, and each attribute leaf must contain a salt. Thus, each leaf of the attribute tree looks like this:
@@ -28,9 +28,9 @@ The hash function used is poseidon, parameterized in such a way that it maintain
 
 1. Name: As name is a string of arbitrary length, the string must be separated into 31 byte chunks. This is hashed as a name domain tag and salt.
 
-2. DOB: Hashed as dob tag, dob value(yyyymmdd), salt
+2. gender: Hashed as gender tag, gender numeric value, salt
 
-3. gender: Hashed as gender tag, gender numeric value, salt
+3. DOB: Hashed as dob tag, dob value(yyyymmdd), salt
 
 4. country code: hashed as country tag, iso-3166-numeric value, salt.
 
@@ -50,7 +50,13 @@ But later on, salts should be derived for each attribute from a high entropy mas
 
 # Domain tags
 
-how are domain tags generated and defined
+For now, Domain tags will just be numbers. This will be changed in the future.
+
+name attribute: 1
+gender attribute: 2
+dob attribute: 3
+date attribute: 4
+merkle tree internal node: 0
 
 # Tree structure
 

@@ -1,6 +1,3 @@
-
-
-
 // Top level error enum.
 #[derive(Debug)]
 pub enum IssuerError {
@@ -127,7 +124,8 @@ impl std::error::Error for AttributeError {}
 #[derive(Debug, PartialEq)]
 pub enum AttrTreeError {
     LeafHashFailed{leaf_index: usize, source: HashError},
-    NodeHashFailed{source: HashError}
+    NodeHashFailed{source: HashError},
+    LeafIndexOutOfBounds{leaf_index: usize},
 }
 
 impl std::fmt::Display for AttrTreeError {
@@ -138,6 +136,9 @@ impl std::fmt::Display for AttrTreeError {
             }
             Self::NodeHashFailed{source} => {
                 write!(f, "failed to hash node: {source}")
+            }
+            Self::LeafIndexOutOfBounds{leaf_index} => {
+                write!(f, "given leaf index: {leaf_index} is out of bounds. Cannot generate proof.")
             }
         }
     }

@@ -505,6 +505,7 @@ dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
  "ark-ff",
+ "ark-serialize",
  "ark-std",
  "chrono",
  "hex",

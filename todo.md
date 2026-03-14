@@ -33,17 +33,17 @@ OVERALL TODO LIST
         [x] validate country
 ;
     [ ] Merkle tree (issuer/attr_tree.rs)
-        [ ] Define AttrTree struct
-        [ ] write constructor
-        [ ] Leaf ordering: document then code
-        [ ] Leaf hashes: delegate to each Attribute::hash()
-        [ ] NODE_DOMAIN_TAG: add to domain_tags.rs, use in internal node hashing
-        [ ] Internal node hash: Poseidon(NODE_TAG, left, right)
-        [ ] AttrTree::root() -> Fr
-        [ ] AttrTree::root_bytes() -> [u8; 32]  — canonical form for signing
-        [ ] AttrTree::merkle_proof(leaf_index: usize) -> MerkleProof
-        [ ] MerkleProof struct { leaf: Fr, sibling: Fr, is_left: bool, root: Fr }
-        [ ] AttrTree::verify_proof(proof: &MerkleProof) -> bool
+        [x] Define AttrTree struct
+        [x] write constructor
+        [x] Leaf ordering: document then code
+        [x] Leaf hashes: delegate to each Attribute::hash()
+        [x] NODE_DOMAIN_TAG: add to domain_tags.rs, use in internal node hashing
+        [x] Internal node hash: Poseidon(NODE_TAG, left, right)
+        [x] AttrTree::root() -> Fr
+        [x] AttrTree::root_bytes() -> [u8; 32]  — canonical form for signing
+        [x] AttrTree::merkle_proof(leaf_index: usize) -> MerkleProof
+        [x] MerkleProof struct { leaf: Fr, sibling: Fr, is_left: bool, root: Fr }
+        [x] AttrTree::verify_proof(proof: &MerkleProof) -> bool
         [ ] Tests: known-vector test for root given fixed attributes and salts
 ;
     [ ] Credential assembly (issuer/credential.rs — new file)

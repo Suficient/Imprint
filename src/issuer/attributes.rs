@@ -1,4 +1,4 @@
-use crate::{crypto::poseidon_ark_import::poseidon_hash, issuer::{dob::DobType, error::HashError}};
+use crate::{crypto::poseidon_ark_import::poseidon_hash, issuer::{types::DobType, error::HashError}};
 use ark_bn254::Fr;
 use ark_ff::PrimeField;
 use rust_iso3166;
@@ -149,7 +149,7 @@ impl Attribute for DOBAttribute {
 
 
 pub struct CountryAttribute {
-    value: rust_iso3166::CountryCode, //days since 1900-01-01
+    value: rust_iso3166::CountryCode,
     salt: Fr
 }
 

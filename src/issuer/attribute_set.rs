@@ -3,10 +3,7 @@ use rand::thread_rng;
 use ark_ff::UniformRand;
 
 use crate::issuer::{
-    attributes::{CountryAttribute, DOBAttribute, GenderAttribute, NameAttribute},
-    dob::DobType,
-    error::{AttributeError, HashError, IssuerError},
-    validation::{validate_and_parse_dob, validate_country, validate_gender, validate_name},
+    attributes::{CountryAttribute, DOBAttribute, GenderAttribute, NameAttribute}, error::{AttributeError, HashError}, types::DobType, validation::{validate_and_parse_dob, validate_country, validate_gender, validate_name}
 };
 
 // A validated set containing all four credential attributes.
@@ -35,7 +32,7 @@ impl AttributeSet {
         gender:  &str,
         dob:     u64,
         country: &str,
-    ) -> Result<Self, IssuerError> {
+    ) -> Result<Self, AttributeError> {
 
         validate_name(&name)?;
         let gender_enum  = validate_gender(gender)?;
@@ -56,20 +53,22 @@ impl AttributeSet {
 
     /// Return the four Poseidon leaf hashes in canonical order:
     /// `[name, gender, dob, country]`.
-    pub fn leaf_hashes(&self) -> Result<[Fr; 4], HashError> {
+    /// If hashing fails, returns a tuple containing the index of
+    /// the failed hash, and the HashError encountered.
+    pub fn leaf_hashes(&self) -> Result<[Fr; 4], (usize,HashError)> {
         use crate::issuer::attributes::Attribute;
         Ok([
-            self.name.hash()?,
-            self.gender.hash()?,
-            self.dob.hash()?,
-            self.country.hash()?,
-        ])
+        self.name.hash()   .map_err(|e| (0, e))?,
+        self.gender.hash() .map_err(|e| (1, e))?,
+        self.dob.hash()    .map_err(|e| (2, e))?,
+        self.country.hash().map_err(|e| (3, e))?,
+    ])
     }
 
     /// Return the four salts in canonical leaf order: `[name, gender, dob, country]`.
     ///
     /// Needed by the holder when building a ZK witness. Must never be shared
-    /// with the verifier.
+    /// with the verifier. Also necessary for credential storage. 
     pub fn salts(&self) -> [Fr; 4] {
         use crate::issuer::attributes::Attribute;
         [
