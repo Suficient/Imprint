@@ -3,7 +3,9 @@ use rand::thread_rng;
 use ark_ff::UniformRand;
 
 use crate::issuer::{
-    attributes::{CountryAttribute, DOBAttribute, GenderAttribute, NameAttribute}, error::{AttributeError, HashError}, types::DobType, validation::{validate_and_parse_dob, validate_country, validate_gender, validate_name}
+    attributes::{CountryAttribute, DOBAttribute, GenderAttribute, NameAttribute}, 
+    error::{AttributeError, HashError}, types::DobType, 
+    validation::{validate_and_parse_dob, validate_country, validate_gender, validate_name}
 };
 
 // A validated set containing all four credential attributes.

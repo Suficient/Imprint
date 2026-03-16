@@ -9,7 +9,7 @@ use crate::{
         types::MerkleProof,
     },
 };
-
+#[derive(Debug)]
 pub struct AttributeTree {
     leaves: [Fr; 4],
     nodes: [Fr; 2],

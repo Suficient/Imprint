@@ -37,7 +37,7 @@ OVERALL TODO LIST
         [x] write constructor
         [x] Leaf ordering: document then code
         [x] Leaf hashes: delegate to each Attribute::hash()
-        [x] NODE_DOMAIN_TAG: add to domain_tags.rs, use in internal node hashing
+        [ ] NODE_DOMAIN_TAG: add to domain_tags.rs, use in internal node hashing
         [x] Internal node hash: Poseidon(NODE_TAG, left, right)
         [x] AttrTree::root() -> Fr
         [x] AttrTree::root_bytes() -> [u8; 32]  — canonical form for signing
@@ -59,7 +59,7 @@ OVERALL TODO LIST
             NOTE: salts are private and must not be shared with verifier
 ;
     [ ] Dilithium signing (crypto/dilithium.rs — new file)
-        [ ] Figure out which dilithium library and variant to use
+        [x] Figure out which dilithium library and variant to use -> pqcrypto-mldsa
         [ ] dilithium_keygen() -> (PublicKey, SecretKey)
         [ ] Sign dilithium, with secret key and attribute tree root
         [ ] verify dilithium, with pubkey, root, signature

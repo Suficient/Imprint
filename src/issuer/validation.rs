@@ -34,7 +34,7 @@ pub fn validate_name(name: &str) -> Result<(), AttributeError> {
     (1900-01-01 = 0).  This value is ready to be wrapped in `DobType(n)`.
 */
 pub fn validate_and_parse_dob(ymd: u64) -> Result<u64, AttributeError> {
-    let year  = (ymd / 10_000) as i32;
+    let year  = (ymd / 10000) as i32;
     let month = ((ymd / 100) % 100) as u32;
     let day   = (ymd % 100) as u32;
 

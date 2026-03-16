@@ -168,7 +168,7 @@ impl Attribute for CountryAttribute {
         self.salt
     }
 
-    // while the alppha3 value is used everywhere else in the code,
+    // while the alpha3 value is used everywhere else in the code,
     // the ZK circuits for country codes use the numeric value.
     fn value_to_fr(&self) -> Vec<Fr> {
         let countrycode_numeric = self.value.numeric;
