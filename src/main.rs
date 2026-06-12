@@ -1,21 +1,50 @@
-use crate::issuer::{attr_tree::AttributeTree, attribute_set::AttributeSet};
+use imprint::{
+    crypto::mldsa::{keygen, verify, DilithiumError},
+    issuer::{attribute_set::AttributeSet, credential::CredentialBuilder},
+};
 
-pub mod crypto;
-pub mod issuer;
-
+// Manual demo of the issuance flow. The real coverage lives in `cargo test`
+// (unit tests + tests/e2e.rs); this just exercises the same path visibly.
 fn main() {
-    let name: String = String::from("Sufi");
-    let gender : &str = "X";
-    let dob: u64 = 20040613;
-    let country: &str = "IND";
+    let set = AttributeSet::new(String::from("Sufi"), "X", 20040613, "IND").unwrap();
 
-    let set = AttributeSet::new(name, gender, dob, country).unwrap();
-    let leaves = set.leaf_hashes().unwrap();
-    let salts = set.salts();
+    match keygen() {
+        Ok(_) => println!("keygen: new ML-DSA-65 keypair written to keys/"),
+        Err(DilithiumError::KeysAlreadyExist) => println!("keygen: reusing existing keys"),
+        Err(e) => {
+            println!("keygen failed: {e}");
+            return;
+        }
+    }
 
-    println!("leaves: {:?}",leaves);
-    println!("salts: {:?}", salts);
+    let credential = match CredentialBuilder::new(set).issue() {
+        Ok(c) => c,
+        Err(e) => {
+            println!("issuance failed: {e}");
+            return;
+        }
+    };
 
-    let tree = AttributeTree::new(&set).unwrap();
-    println!("Attibute Tree: {:?}", tree);
+    println!("issued credential: {credential:#?}");
+
+    match verify(
+        &credential.signature,
+        &credential.merkle_root,
+        &credential.issuer_public_key,
+    ) {
+        Ok(_) => println!("signature verifies"),
+        Err(e) => println!("signature verification failed: {e}"),
+    }
+
+    let mut tampered_root = credential.merkle_root;
+    tampered_root[30] ^= 0xFF;
+
+    match verify(
+        &credential.signature,
+        &tampered_root,
+        &credential.issuer_public_key,
+    ) {
+        Ok(_) => println!("tampered root still verifies. Problematic"),
+        Err(_) => println!("tampered root fails to verify, as expected"),
+    }
 }

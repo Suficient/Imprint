@@ -1,13 +1,15 @@
 use chrono::{Datelike, Local, NaiveDate};
 use rust_iso3166;
 
-use crate::issuer::{attributes::Gender, error::AttributeError};
+use crate::issuer::{
+    attributes::{Gender, NAME_MAX_BYTES},
+    error::AttributeError,
+};
 
-// Maximum name length in bytes (14 chunks × 31 bytes per chunk) This is due
-// to the poseidon input limit. 1 domain tag + 1 salt + 14 string chunks = 16.
-const NAME_MAX_BYTES: usize = 434;
-
-// validated name by number of bytes. 
+// Validates name by number of **bytes**, not characters — the cap is derived
+// from the AIR block budget (see `attributes::NAME_MAX_BYTES`), and byte caps
+// on UTF-8 input can bite mid-character; communicating limits in characters
+// is the product layer's job.
 pub fn validate_name(name: &str) -> Result<(), AttributeError> {
     let byte_len = name.len();
 
@@ -30,13 +32,16 @@ pub fn validate_name(name: &str) -> Result<(), AttributeError> {
     - Must not predate 1900-01-01  → `DobBefore1900`.
     - Must not be in the future    → `DobInFuture`.
 
-    On success the return value is a `u64` representing days since the epoch
+    On success the return value is a `u32` representing days since the epoch
     (1900-01-01 = 0).  This value is ready to be wrapped in `DobType(n)`.
+    The day count is bounded by the not-in-the-future check (today ≈ 46k days,
+    far below 2^24), which is what lets the DOB encode as a single field
+    element.
 */
-pub fn validate_and_parse_dob(ymd: u64) -> Result<u64, AttributeError> {
+pub fn validate_and_parse_dob(ymd: u32) -> Result<u32, AttributeError> {
     let year  = (ymd / 10000) as i32;
-    let month = ((ymd / 100) % 100) as u32;
-    let day   = (ymd % 100) as u32;
+    let month = (ymd / 100) % 100;
+    let day   = ymd % 100;
 
     let input_date = NaiveDate::from_ymd_opt(year, month, day)
         .ok_or(AttributeError::DobInvalid)?;
@@ -55,12 +60,12 @@ pub fn validate_and_parse_dob(ymd: u64) -> Result<u64, AttributeError> {
 
     if days > today_days {
         return Err(AttributeError::DobInFuture {
-            provided: days as u64,
-            today: today_days as u64,
+            provided: days as u32,
+            today: today_days as u32,
         });
     }
 
-    Ok(days as u64)
+    Ok(days as u32)
 }
 
 
@@ -76,12 +81,36 @@ pub fn validate_gender(raw: &str) -> Result<Gender, AttributeError> {
 /*
     Look up a country by its ISO 3166-1 alpha-3 code and return the
     `rust_iso3166::CountryCode` if found.
-
-    The lookup is case-insensitive; inputs are uppercased before matching.
-    An unknown code returns `CountryCodeUnknown`.
 */
 pub fn validate_country(alpha3: &str) -> Result<rust_iso3166::CountryCode, AttributeError> {
     let upper = alpha3.trim().to_uppercase();
     rust_iso3166::from_alpha3(&upper)
         .ok_or(AttributeError::CountryCodeUnknown)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn name_max_length_boundary() {
+        // Exactly NAME_MAX_BYTES is accepted; one byte over is rejected.
+        assert!(validate_name(&"a".repeat(NAME_MAX_BYTES)).is_ok());
+        assert_eq!(
+            validate_name(&"a".repeat(NAME_MAX_BYTES + 1)),
+            Err(AttributeError::NameTooLong { bytes: NAME_MAX_BYTES + 1 })
+        );
+    }
+
+    #[test]
+    fn name_cap_counts_bytes_not_chars() {
+        // 31 Devanagari chars × 3 bytes = 93 bytes > 90 — rejected even
+        // though it is far fewer than 90 *characters*.
+        let name = "क".repeat(31);
+        assert_eq!(name.chars().count(), 31);
+        assert_eq!(
+            validate_name(&name),
+            Err(AttributeError::NameTooLong { bytes: 93 })
+        );
+    }
 }

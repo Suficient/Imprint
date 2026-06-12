@@ -1,24 +1,25 @@
+use crate::crypto::field::Digest;
 use crate::issuer::{error::AttributeError, validation::validate_and_parse_dob};
-use ark_bn254::Fr;
 
 // This is the Date of birth type used universally within the project.
-// It is defined as the number of days since 1900-01-01.
+// It is defined as the number of days since 1900-01-01. A u32 holds that
+// comfortably (2^24 days ≈ 45,000 years) and it encodes as a single field
+// element
 #[derive(Copy, Clone, Debug)]
-pub struct DobType(pub u64);
+pub struct DobType(pub u32);
 
 impl DobType {
-    pub fn from_yyyymmdd(ymd: u64) -> Result<u64, AttributeError> {
-        let days: u64 = validate_and_parse_dob(ymd)?;
+    pub fn from_yyyymmdd(ymd: u32) -> Result<u32, AttributeError> {
+        let days: u32 = validate_and_parse_dob(ymd)?;
         Ok(days)
     }
 
-    pub fn value(&self) -> u64 {
+    pub fn value(&self) -> u32 {
         self.0
     }
-
 }
 
-impl From<DobType> for u64 {
+impl From<DobType> for u32 {
     fn from(d: DobType) -> Self {
         d.0
     }
@@ -26,13 +27,14 @@ impl From<DobType> for u64 {
 
 /// Generalised struct to contain merkle proofs.
 ///
-/// Contains a leaf, a vector of its siblings, and a path vector. A True value
-/// in the path vector means that the current leaf is a left child. The length
-/// of the vectors is always one less than the depth of the merkle tree.
+/// Contains a leaf digest, a vector of its sibling digests, and a path vector.
+/// A True value in the path vector means that the current node is a left child
+/// at that level. The length of the vectors equals the depth of the tree.
+#[derive(Debug)]
 pub struct MerkleProof {
-    pub leaf: Fr,
+    pub leaf: Digest,
     pub leaf_index: usize,
-    pub siblings: Vec<Fr>,
-    pub path: Vec<bool>, // true = leaf is left child at this level
-    pub root: Fr,
+    pub siblings: Vec<Digest>,
+    pub path: Vec<bool>, // true = node is left child at this level
+    pub root: Digest,
 }

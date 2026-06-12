@@ -1,3 +1,6 @@
 /target
 /extra/node_modules
 /src/deadcode
+/keys
+.claude
+/claude-notes

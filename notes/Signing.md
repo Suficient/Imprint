@@ -28,7 +28,7 @@ called only when /keys is empty. If not empty, nothing should be done.
 
 Keys should be stored in PEM format. 
 
-> Note: when ccred storage is implemented, stored credentials must be deleted whenever the corresponding keys
+> Note: when cred storage is implemented, stored credentials must be deleted whenever the corresponding keys
 > are deleted. Because of this, key deletion should be handled through a well designed function that 
 > ensures this, rather than being done manually.
 

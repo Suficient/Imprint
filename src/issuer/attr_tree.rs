@@ -1,43 +1,45 @@
-use ark_bn254::Fr;
-use ark_serialize::CanonicalSerialize;
+use p3_field::PrimeField32;
 
 use crate::{
-    crypto::poseidon_ark_import::poseidon_hash,
-    issuer::{
-        attribute_set::AttributeSet,
-        error::{AttrTreeError},
-        types::MerkleProof,
+    crypto::{
+        field::Digest,
+        poseidon2::compress,
     },
+    issuer::{attribute_set::AttributeSet, error::AttrTreeError, types::MerkleProof},
 };
+
 #[derive(Debug)]
 pub struct AttributeTree {
-    leaves: [Fr; 4],
-    nodes: [Fr; 2],
-    root: Fr,
+    leaves: [Digest; 4],
+    nodes: [Digest; 2],
+    root: Digest,
 }
 
 impl AttributeTree {
-    const NODE_DOMAIN_TAG: u64 = 0;
-    pub fn new(set: &AttributeSet) -> Result<Self, AttrTreeError> {
-        let hashed_leaves: [Fr; 4] = Self::generate_leaves(set)?;
-        let hashed_nodes: [Fr; 2] = Self::generate_nodes(hashed_leaves)?;
-        let hashed_root: Fr = Self::hash_node(hashed_nodes[0], hashed_nodes[1])?;
+    pub fn new(set: &AttributeSet) -> Self {
+        let leaves: [Digest; 4] = set.leaf_hashes();
+        let nodes: [Digest; 2] = [
+            compress(leaves[0], leaves[1]),
+            compress(leaves[2], leaves[3]),
+        ];
+        let root: Digest = compress(nodes[0], nodes[1]);
 
-        Ok(AttributeTree {
-            leaves: hashed_leaves,
-            nodes: hashed_nodes,
-            root: hashed_root,
-        })
+        AttributeTree { leaves, nodes, root }
     }
 
-    pub fn root(&self) -> Fr {
+    pub fn root(&self) -> Digest {
         self.root
     }
 
-    /// returns root as 32 bytes, little endian.
+    /// Returns the root serialised as 32 bytes: each of the 8 elements as its
+    /// canonical `u32`, little-endian, in order. This is the canonical form
+    /// signed by ML-DSA.
     pub fn root_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
-        self.root.serialize_compressed(&mut bytes[..]).unwrap(); // this unwrap is unreachable.
+        for (i, elem) in self.root.iter().enumerate() {
+            bytes[i * 4..(i + 1) * 4]
+                .copy_from_slice(&elem.as_canonical_u32().to_le_bytes());
+        }
         bytes
     }
 
@@ -52,7 +54,6 @@ impl AttributeTree {
             _ => return Err(AttrTreeError::LeafIndexOutOfBounds { leaf_index }),
         };
 
-
         let proof = MerkleProof {
             leaf,
             leaf_index,
@@ -66,45 +67,29 @@ impl AttributeTree {
         Ok(proof)
     }
 
-    fn verify_proof(&self, proof: &MerkleProof) -> Result<(), AttrTreeError>{
-        let mut current: Fr = proof.leaf;
+    /// Recompute the root from a proof. Sanity check called inside
+    /// `merkle_proof`; a failure means a bug in tree construction or proof
+    /// assembly, returns err `ProofInconsistent`
+    fn verify_proof(&self, proof: &MerkleProof) -> Result<(), AttrTreeError> {
+        let mut current: Digest = proof.leaf;
         for (sibling, is_left) in proof.siblings.iter().zip(proof.path.iter()) {
             let (left, right) = if *is_left {
                 (current, *sibling)
             } else {
                 (*sibling, current)
             };
-            current = Self::hash_node(left, right)?;
+            current = compress(left, right);
         }
-        
+
         if current != proof.root {
-            panic!("merkle proof verification failed. This should not happen! There is a bug in proof generation or tree construction code")
+            return Err(AttrTreeError::ProofInconsistent {
+                leaf_index: proof.leaf_index,
+            });
         }
 
         Ok(())
     }
-
-    fn generate_leaves(set: &AttributeSet) -> Result<[Fr; 4], AttrTreeError> {
-        set.leaf_hashes()
-            .map_err(|(i, e)| AttrTreeError::LeafHashFailed {
-                leaf_index: (i),
-                source: (e),
-            })
-    }
-
-    fn hash_node(left: Fr, right: Fr) -> Result<Fr, AttrTreeError> {
-        poseidon_hash(vec![Fr::from(Self::NODE_DOMAIN_TAG), left, right])
-            .map_err(|e| AttrTreeError::NodeHashFailed { source: e })
-    }
-
-    fn generate_nodes(leaves: [Fr; 4]) -> Result<[Fr; 2], AttrTreeError> {
-        Ok([
-            Self::hash_node(leaves[0], leaves[1])?,
-            Self::hash_node(leaves[2], leaves[3])?,
-        ])
-    }
 }
-
 
 /*
     ATTRIBUTE TREE
@@ -116,27 +101,103 @@ impl AttributeTree {
 
     Whenever a new attributeTree object is created, it takes in an AttrSet and generates a merkle
     root from it. This is meant to be a transient data structure, only existing during credential
-    issuance and when a proof needs to be generated. As such, it will have only two values accessible
-    through its api
+    issuance and when a proof needs to be generated.
 
-    1) The merkle root. This will be accessible as an Fr element through root() and as bytes through
-    root_bytes() [this is used for the dilithium signature]
-
-    2) Merkle proof for a given leaf node, required for proof computation.
-
-    Thus, it will have the following methods
+    Leaves are Poseidon2 sponge digests of the attributes ([F; 8] each); internal
+    nodes and the root are 2-to-1 truncated-permutation compressions of digest
+    pairs. Domain separation between leaves and nodes comes from the two layers
+    using different constructions (sponge vs compression).
 
     PUBLIC
 
-        new(AttributeSet) : Constructor, takes attrset as input
-        root() : returns merkle root
-        root_bytes() : returns merkle root as bytes
+        new(AttributeSet) : Constructor, takes attrset as input. Infallible.
+        root() : returns merkle root digest ([F; 8])
+        root_bytes() : returns merkle root as 32 bytes (8 x u32 LE) [ML-DSA message]
         merkle_proof() : returns merkle proof for a given leaf
 
     PRIVATE
 
-        verify_proof() : called within merkle_proof(). Recomputes a root from the proof. sanity check.
-        generate_leaves() : hashes the elements within AttrSet. Returns an AttrTreeError: LeafHashFailed if fails.
-        generate_nodes() : hashes leaves to make internal nodes. Returns an AttrTreeError: NodeHashFailed if fails.
-
+        verify_proof() : called within merkle_proof(). Recomputes the root from
+        the proof as a sanity check; errors with ProofInconsistent on mismatch.
 */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::crypto::field::{F, Salt, SALT_ELEMS};
+
+    fn fixed_salts() -> [Salt; 4] {
+        std::array::from_fn(|i| {
+            std::array::from_fn(|j| F::new((i * SALT_ELEMS + j + 1) as u32))
+        })
+    }
+
+    fn test_set() -> AttributeSet {
+        AttributeSet::with_test_salts(
+            String::from("Sufi"),
+            "X",
+            20040613,
+            "IND",
+            fixed_salts(),
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn merkle_proofs_roundtrip_for_all_leaves() {
+        let tree = AttributeTree::new(&test_set());
+        for i in 0..4 {
+            let proof = tree.merkle_proof(i).unwrap();
+            assert_eq!(proof.leaf_index, i);
+            assert_eq!(proof.root, tree.root());
+        }
+    }
+
+    #[test]
+    fn leaf_index_out_of_bounds() {
+        let tree = AttributeTree::new(&test_set());
+        assert!(matches!(
+            tree.merkle_proof(4),
+            Err(AttrTreeError::LeafIndexOutOfBounds { leaf_index: 4 })
+        ));
+    }
+
+    #[test]
+    fn fresh_salts_give_fresh_roots() {
+        // Two sets with identical attributes but random salts must not share a root.
+        let a = AttributeSet::new(String::from("Sufi"), "X", 20040613, "IND").unwrap();
+        let b = AttributeSet::new(String::from("Sufi"), "X", 20040613, "IND").unwrap();
+        assert_ne!(
+            AttributeTree::new(&a).root_bytes(),
+            AttributeTree::new(&b).root_bytes()
+        );
+    }
+
+    #[test]
+    fn root_is_deterministic_for_fixed_salts() {
+        let r1 = AttributeTree::new(&test_set()).root_bytes();
+        let r2 = AttributeTree::new(&test_set()).root_bytes();
+        assert_eq!(r1, r2);
+    }
+
+    // Known-vector test: locks the full leaf-hash + tree layout (domain tags,
+    // length-prefixed 3-byte chunking, fixed-block zero padding, salt order,
+    // compression). If this test breaks, previously issued credentials are
+    // invalid — that must be a deliberate, versioned decision, never an
+    // accident.
+    //
+    // Vector history:
+    //   888dde5b…0041 — variable-length preimages (pre fixed-block padding)
+    //   c7124979…7548 — re-pinned 2026-06-12: preimages zero-padded to
+    //                   PREIMAGE_BLOCKS (name 5, others 2); see
+    //                   claude-notes/04-name-max-bytes-and-fixed-blocks.md
+    //   19505e05…575e — re-pinned 2026-06-12: numeric attributes encode as a
+    //                   single element (the 3-limb encode_u64 was an ark
+    //                   Fr::from(u64) leftover); see claude-notes/05.
+    #[test]
+    fn known_vector_root() {
+        let root = AttributeTree::new(&test_set()).root_bytes();
+        let expected = "19505e05024a046205c3080cb74257308953bb227cd7565b38a02b5c0d9f575e";
+        assert_eq!(hex::encode(root), expected);
+    }
+}
